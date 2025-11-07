@@ -4,25 +4,92 @@
 
 #include "subsystems/DriveBase.h"
 
-DriveBase::DriveBase() {
+class DriveBaseSim {
+public:
+  friend class DriveBase; 
+
+public:
+  // Constructor for DriveBaseSim
+  DriveBaseSim(DriveBase &driveBase);
+  ~DriveBaseSim();
+
+  rev::spark::SparkMaxSim m_simLeftMotorLeader;
+  rev::spark::SparkMaxSim m_simLeftMotorFollower;
+  rev::spark::SparkMaxSim m_simRightMotorLeader;
+  rev::spark::SparkMaxSim m_simRightMotorFollower;
+
+  frc::DCMotor maxGearbox = frc::DCMotor::NEO(1);
+
+  frc::sim::DifferentialDrivetrainSim m_driveSim{
+    frc::DCMotor::NEO(2),
+    7.29,
+    7.5_kg_sq_m,
+    70_kg,
+    3_in,
+    0.7112_in,
+    //standard deviation for measurmnt noise
+    {0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005}
+  };
+
+  frc::Field2d m_field;
+};
+
+DriveBase::DriveBase() : 
+m_leftMotorLeader{20, rev::spark::SparkLowLevel::MotorType::kBrushless},
+m_leftMotorFollower{21, rev::spark::SparkLowLevel::MotorType::kBrushless},
+m_rightMotorLeader{22, rev::spark::SparkLowLevel::MotorType::kBrushless},
+m_rightMotorFollower{23, rev::spark::SparkLowLevel::MotorType::kBrushless},
+m_sim_state{new DriveBaseSim{*this}}
+{
   // Implementation of subsystem constructor goes here.
+  
+  rev::spark::SparkBaseConfig configLeft;
+  configLeft.Follow(m_leftMotorLeader); //set to leader
+  m_leftMotorFollower.Configure(configLeft, 
+    rev::spark::SparkBase::ResetMode::kResetSafeParameters, 
+    rev::spark::SparkBase::PersistMode::kNoPersistParameters);
+
+  rev::spark::SparkBaseConfig configRight;
+  configRight.Follow(m_rightMotorLeader); //set to leader
+  m_rightMotorFollower.Configure(configRight, 
+    rev::spark::SparkBase::ResetMode::kResetSafeParameters, 
+    rev::spark::SparkBase::PersistMode::kNoPersistParameters);
 }
 
-frc2::CommandPtr DriveBase::ExampleMethodCommand() {
-  // Inline construction of command goes here.
-  // Subsystem::RunOnce implicitly requires `this` subsystem.
-  return RunOnce([/* this */] { /* one-time action goes here */ });
+DriveBase::~DriveBase() {}
+
+void DriveBase::MoveLeftMotor(double speed) {
+  m_leftMotorLeader.Set(speed);
 }
 
-bool DriveBase::ExampleCondition() {
-  // Query some boolean state, such as a digital sensor.
-  return false;
+void DriveBase::MoveRightMotor(double speed) {
+  m_rightMotorLeader.Set(speed);
 }
 
-void DriveBase::Periodic() {
-  // Implementation of subsystem periodic method goes here.
+void DriveBase::Move(double Lspeed, double Rspeed) {
+  this->MoveLeftMotor(Lspeed);
+  this->MoveRightMotor(Rspeed);
 }
+
+DriveBaseSim::DriveBaseSim(DriveBase& drivebase):
+  m_simLeftMotorLeader{&drivebase.m_leftMotorLeader, &maxGearbox},
+  m_simLeftMotorFollower{&drivebase.m_leftMotorLeader, &maxGearbox},
+  m_simRightMotorLeader{&drivebase.m_leftMotorLeader, &maxGearbox},
+  m_simRightMotorFollower{&drivebase.m_leftMotorLeader, &maxGearbox}
+{
+  frc::SmartDashboard::PutData("Field", &m_field);
+}
+
+DriveBaseSim::~DriveBaseSim() {}
 
 void DriveBase::SimulationPeriodic() {
-  // Implementation of subsystem simulation periodic method goes here.
+  m_sim_state->m_driveSim.SetInputs(
+    m_leftMotorLeader.Get() * 1_V,
+    m_rightMotorLeader.Get() * 1_V
+  );
+
+  m_sim_state->m_driveSim.Update(20_ms);
+
+  m_sim_state->m_field.SetRobotPose(m_sim_state->m_driveSim.GetPose());
+  
 }

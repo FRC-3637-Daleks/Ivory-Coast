@@ -6,6 +6,8 @@
 
 #include <frc2/command/CommandScheduler.h>
 
+#include <iostream>
+
 Robot::Robot() {}
 
 /**
@@ -34,11 +36,7 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  m_autonomousCommand = m_container.GetAutonomousCommand();
 
-  if (m_autonomousCommand) {
-    m_autonomousCommand->Schedule();
-  }
 }
 
 void Robot::AutonomousPeriodic() {}
@@ -56,7 +54,10 @@ void Robot::TeleopInit() {
 /**
  * This function is called periodically during operator control.
  */
-void Robot::TeleopPeriodic() {}
+void Robot::TeleopPeriodic() {
+  m_container.m_driveBase.Move(m_container.m_driverController.GetLeftY(), //usign LeftY and LeftX because cant find how to sim right stick
+    m_container.m_driverController.GetLeftX());
+}
 
 /**
  * This function is called periodically during test mode.
