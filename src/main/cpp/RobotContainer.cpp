@@ -17,6 +17,8 @@ RobotContainer::RobotContainer() {
 void RobotContainer::ConfigureBindings() {
   // Configure your trigger bindings here
 
+  // STEP 8: Make a trigger for the commandPtr function and pass in the controller
+
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   // frc2::Trigger([this] {
   //   return true;

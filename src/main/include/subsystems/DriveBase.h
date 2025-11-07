@@ -25,6 +25,8 @@ class DriveBase : public frc2::SubsystemBase {
   void MoveRightMotor(double speed);
   void Move(double Lspeed, double Rspeed);
 
+  // STEP 6: Make a new commandPtr function for Move.
+
 
   void SimulationPeriodic() override;
 

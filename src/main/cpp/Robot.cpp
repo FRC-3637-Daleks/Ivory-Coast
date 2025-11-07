@@ -55,8 +55,7 @@ void Robot::TeleopInit() {
  * This function is called periodically during operator control.
  */
 void Robot::TeleopPeriodic() {
-  m_container.m_driveBase.Move(m_container.m_driverController.GetLeftY(), //usign LeftY and LeftX because cant find how to sim right stick
-    m_container.m_driverController.GetLeftX());
+  // STEP 5: use the controller to make the robot drive around using the MOVE command
 }
 
 /**
