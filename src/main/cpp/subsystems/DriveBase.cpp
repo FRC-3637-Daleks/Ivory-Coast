@@ -83,13 +83,25 @@ DriveBaseSim::DriveBaseSim(DriveBase& drivebase):
 DriveBaseSim::~DriveBaseSim() {}
 
 void DriveBase::SimulationPeriodic() {
-  m_sim_state->m_driveSim.SetInputs(
-    m_leftMotorLeader.Get() * 1_V,
-    m_rightMotorLeader.Get() * 1_V
-  );
+  rotation += units::degree_t(2 * (m_leftMotorLeader.Get() - m_rightMotorLeader.Get()));
 
-  m_sim_state->m_driveSim.Update(20_ms);
-
-  m_sim_state->m_field.SetRobotPose(m_sim_state->m_driveSim.GetPose());
+  rotation = units::degree_t(static_cast<int>(rotation) % 360);
   
+  if ((double)rotation <= 0) { 
+      rotation = units::degree_t(360 + (double)rotation); 
+  }
+
+  double dist = 0;
+  if (abs(m_leftMotorLeader.Get()) > abs(m_rightMotorLeader.Get())) {
+      dist = m_rightMotorLeader.Get() / 15;
+  } else {
+      dist = m_leftMotorLeader.Get() / 15;
+  }
+
+  tranX += units::length::meter_t(  
+      dist * std::cos((double)rotation * 3.1415 / 180.0));
+  tranY += units::length::meter_t(
+      dist * std::sin((double)rotation * 3.1415 / 180.0));
+
+  m_sim_state->m_field.SetRobotPose(frc::Pose2d({tranX, tranY}, rotation));
 }

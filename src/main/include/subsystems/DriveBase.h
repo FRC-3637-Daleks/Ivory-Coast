@@ -41,4 +41,7 @@ class DriveBase : public frc2::SubsystemBase {
   //simulation
   friend class DriveBaseSim;
   std::unique_ptr<DriveBaseSim> m_sim_state;
+
+  units::degree_t rotation = units::degree_t(0);
+  units::length::meter_t tranX = 0_m, tranY = 0_m;
 };
