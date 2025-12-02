@@ -35,11 +35,23 @@ void Robot::DisabledPeriodic() {}
  * This autonomous runs the autonomous command selected by your {@link
  * RobotContainer} class.
  */
-void Robot::AutonomousInit() {
 
+void Robot::AutonomousInit() {
+  m_autonomousCommand = m_container.m_driveBase.MoveCommand(1, 1).WithTimeout(5_s)
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 0).WithTimeout(0.91_s))
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 1).WithTimeout(2.5_s))
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 0).WithTimeout(0.91_s))
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 1).WithTimeout(5_s))
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 0).WithTimeout(0.91_s))
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 1).WithTimeout(2.5_s))
+        .AndThen( m_container.m_driveBase.MoveCommand(1, 0).WithTimeout(0.91_s)); 
+         
+  m_autonomousCommand->Schedule();
 }
 
-void Robot::AutonomousPeriodic() {}
+void Robot::AutonomousPeriodic() {
+
+}
 
 void Robot::TeleopInit() {
   // This makes sure that the autonomous stops running when
@@ -56,6 +68,7 @@ void Robot::TeleopInit() {
  */
 void Robot::TeleopPeriodic() {
   // STEP 5: use the controller to make the robot drive around using the MOVE command
+  m_container.m_driveBase.Move(m_container.m_driverController.GetLeftY(), m_container.m_driverController.GetRightY());
 }
 
 /**

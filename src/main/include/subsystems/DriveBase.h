@@ -26,7 +26,7 @@ class DriveBase : public frc2::SubsystemBase {
   void Move(double Lspeed, double Rspeed);
 
   // STEP 6: Make a new commandPtr function for Move.
-
+  frc2::CommandPtr MoveCommand(double Lspeed, double Rspeed);
 
   void SimulationPeriodic() override;
 

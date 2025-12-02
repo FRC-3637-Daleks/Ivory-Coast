@@ -42,7 +42,17 @@ m_rightMotorFollower{23, rev::spark::SparkLowLevel::MotorType::kBrushless},
 m_sim_state{new DriveBaseSim{*this}}
 {
   // STEP 1: Implement make the follower motor follow the leader motor. Requires config
-  
+    rev::spark::SparkBaseConfig configLeft;
+  configLeft.Follow(m_leftMotorLeader); //set to leader
+  m_leftMotorFollower.Configure(configLeft, 
+    rev::spark::SparkBase::ResetMode::kResetSafeParameters, 
+    rev::spark::SparkBase::PersistMode::kNoPersistParameters);
+
+  rev::spark::SparkBaseConfig configRight;
+  configRight.Follow(m_rightMotorLeader); //set to leader
+  m_rightMotorFollower.Configure(configRight, 
+    rev::spark::SparkBase::ResetMode::kResetSafeParameters, 
+    rev::spark::SparkBase::PersistMode::kNoPersistParameters);
 
 }
 
@@ -50,15 +60,29 @@ DriveBase::~DriveBase() {}
 
 void DriveBase::MoveLeftMotor(double speed) {
   // STEP 2: make the motor move forward or backward depending on the speed
+  m_leftMotorLeader.Set(speed);
 }
 
 void DriveBase::MoveRightMotor(double speed) {
   // STEP 3: make the motor move forward or backward depending on the speed
+  m_rightMotorLeader.Set(speed);
 }
 
 void DriveBase::Move(double Lspeed, double Rspeed) {
-  // STEP 4: combine the previous commands to create one command from witch 
+  // STEP 4: combine the previous commands to create one command from which 
   //  the robot is controlled.
+  m_leftMotorLeader.Set(Lspeed);
+  m_rightMotorLeader.Set(Rspeed);
+}
+
+frc2::CommandPtr DriveBase::MoveCommand(double Lspeed, double Rspeed){
+  return RunEnd([this, Lspeed, Rspeed]{
+    MoveLeftMotor(Lspeed);
+    MoveRightMotor(Rspeed);
+  }, [this]{
+    MoveLeftMotor(0);
+    MoveRightMotor(0);
+  });
 }
 
 // STEP 7: Create the commandPtr based function defined in the header
