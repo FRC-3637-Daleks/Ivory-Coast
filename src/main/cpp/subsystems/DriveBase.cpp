@@ -76,16 +76,19 @@ void DriveBase::Move(double Lspeed, double Rspeed) {
 }
 
 frc2::CommandPtr DriveBase::MoveCommand(double Lspeed, double Rspeed){
-  return RunEnd([this, Lspeed, Rspeed]{
+  return Run([this, Lspeed, Rspeed]{
     MoveLeftMotor(Lspeed);
     MoveRightMotor(Rspeed);
-  }, [this]{
-    MoveLeftMotor(0);
-    MoveRightMotor(0);
   });
 }
 
 // STEP 7: Create the commandPtr based function defined in the header
+frc2::CommandPtr DriveBase::MoveCommandJoysticks(std::function<double()> Lspeed, std::function<double()> Rspeed) {
+  return Run([this, Lspeed, Rspeed] {
+    MoveLeftMotor(Lspeed());
+    MoveRightMotor(Rspeed());
+  });
+}
 
 //Sim Stuff---------------------------------------------
 

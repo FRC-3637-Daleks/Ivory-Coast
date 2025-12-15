@@ -28,6 +28,8 @@ class DriveBase : public frc2::SubsystemBase {
   // STEP 6: Make a new commandPtr function for Move.
   frc2::CommandPtr MoveCommand(double Lspeed, double Rspeed);
 
+  frc2::CommandPtr MoveCommandJoysticks(std::function<double()> Lspeed, std::function<double()> Rspeed);
+
   void SimulationPeriodic() override;
 
  private:
